@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS playlist (
+  id SERIAL PRIMARY KEY,
+  track_id VARCHAR(50) UNIQUE,
+  track_name TEXT NOT NULL,
+  artist_name TEXT NOT NULL,
+  artwork_url TEXT,
+  preview_url TEXT,
+  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS ratings (
+  track_id VARCHAR(50) PRIMARY KEY,
+  rating_sum INTEGER DEFAULT 0,
+  rating_count INTEGER DEFAULT 0,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

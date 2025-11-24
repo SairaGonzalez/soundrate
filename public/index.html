@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SoundRate</title>
+    <link rel="icon" href="imagenes/sound.png" type="image/png" />
+
+    <!-- ESTILOS -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- jQUERY -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Outfit:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div class="header-content">
+        <img src="imagenes/sound.png" alt="SoundRate" class="icono" />
+        <h1>SoundRate</h1>
+      </div>
+    </header>
+
+    <div class="container">
+      <h2>Búsca tu música favorita</h2>
+
+      <!-- BUSCADOR -->
+      <div class="input-group">
+        <input id="buscar" type="text" placeholder="Buscar canción o artista" />
+      </div>
+
+      <!-- APARTADOS -->
+      <div class="row">
+        <!-- RESULTADOS -->
+        <div class="col-md-7">
+          <div id="resultados" class="lista-canciones"></div>
+
+          <!-- PAGINACIÓN -->
+          <div id="paginacion"></div>
+        </div>
+
+        <!-- PLAYLIST Y FAVORITOS -->
+        <div class="col-md-5">
+          <h4>Playlist Global</h4>
+          <div id="playlist" class="lista-canciones"></div>
+
+          <h4>Mis Favoritos</h4>
+          <div id="favoritos" class="lista-canciones"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECURSOS DE LA NUBE -->
+    <div id="floating-cloud">
+      <!-- Botón visibl en móvil -->
+      <button id="cloud-toggle-btn" onclick="toggleCloudMenu()">
+        Enlaces a la nube
+      </button>
+      <div id="cloud-content">
+        <h4 class="cloud-title">Enlaces a medios en la nube</h4>
+        <a
+          href="https://drive.google.com/file/d/1XUOqTsY9jAcmdhxFSP1EsnNsuby3mrvz/view?usp=sharing"
+          target="_blank"
+          class="btn-cloud-link bg-drive"
+        >
+          <span>Pódcast</span>
+          <img
+            src="imagenes/googledrive.webp"
+            alt="SoundRate"
+            class="icon-cloud"
+          />
+        </a>
+
+        <a
+          href="https://www.dropbox.com/scl/fi/qssjhmn5jciah6dfvwhv2/U2-A2.2_IBM-Cloud-DigitalOcean-Railway-y-Render.pptx?rlkey=eubdg5mc1z8460mo5hhs6r25u&st=jsf2p5es&dl=0"
+          target="_blank"
+          class="btn-cloud-link bg-dropbox"
+        >
+          <span>Presentación</span>
+          <img src="imagenes/dropbox.png" alt="SoundRate" class="icon-cloud" />
+        </a>
+        <a
+          href="https://actividad-render-tlak.onrender.com"
+          target="_blank"
+          class="btn-cloud-link bg-render"
+        >
+          <span>Sitio web sencillo</span>
+          <img src="imagenes/render.png" alt="SoundRate" class="icon-cloud" />
+        </a>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-content">
+        <p>&copy; 2025 SoundRate</p>
+        <p>Tu catálogo de música favorito</p>
+        <small
+          >Saira Marlene García González | Universidad de Guadalajara</small
+        >
+      </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script src="app.js"></script>
+  </body>
+</html>
