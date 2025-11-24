@@ -3,6 +3,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const cors = require("cors");
 const path = require("path");
+
 // Librerías para token
 const session = require("express-session");
 const crypto = require("crypto");
@@ -41,8 +42,6 @@ app.use((req, res, next) => {
   if (!req.session.token) {
     // Generar token aleatorio
     req.session.token = crypto.randomBytes(32).toString("hex");
-    console.log("Nueva sesión iniciada");
-    console.log("Token generado:", req.session.token);
   }
   next();
 });
@@ -166,6 +165,10 @@ app.get("/api/rating/:track_id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Error obteniendo calificación" });
   }
+});
+
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Iniciar servidor
