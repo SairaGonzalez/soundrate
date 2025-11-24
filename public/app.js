@@ -21,6 +21,10 @@ $(function () {
     });
   };
 
+  const masIcono = "/icons/plus.svg";
+  const borrarIcono = "/icons/xmark.svg";
+  const corazonIcono = "/icons/heart.svg";
+
   // Función reutilizable para confirmar acciones
   const confirmarAccion = (titulo, callbackAccion) => {
     Swal.fire({
@@ -114,8 +118,8 @@ $(function () {
             ${crearEstrellas(id)}
           </div>
           <div class="botones">
-            <button class="btn-playlist" data-id="${id}" title="Agregar a Playlist">✚</button>
-            <button class="btn-favorito ${claseFavorito}" data-id="${id}" title="Favoritos">❤</button>
+            <button class="btn-playlist" data-id="${id}" title="Agregar a Playlist"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-favorito ${claseFavorito}" data-id="${id}" title="Favoritos"><i class="fa-solid fa-heart"></i></button>
           </div>
         </div>
       `;
@@ -176,7 +180,7 @@ $(function () {
             </div>
             <button class="btn-eliminar-playlist btn-eliminar" data-db-id="${
               item.id
-            }">×</button>
+            }"><i class="fa-solid fa-xmark"></i></button>
           </div>
         `;
         $playlist.append(html);
@@ -209,9 +213,11 @@ $(function () {
           <div><b>${item.trackName}</b><small>${item.artistName}</small></div>
         <audio controls src="${item.previewUrl}"></audio>
         </div>
-        <button class="btn-eliminar-favorito btn-eliminar" data-id="${item.trackId}">×</button>
+        <button class="btn-eliminar-favorito btn-eliminar" data-id="${item.trackId}">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-  `;
+`;
       $favoritos.append(html);
     });
   };

@@ -139,63 +139,67 @@ audio {
   margin-top: 4px;
 }
 
+/* --- CONTENEDOR DE BOTONES --- */
 .botones {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  align-items: center;
 }
 
 button {
-  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
   border: none;
-  transition: transform 0.1s;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 button:hover {
   transform: scale(1.1);
 }
 
 .btn-playlist,
 .btn-favorito {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-.btn-playlist {
-  background: #f0f0f4;
+  background-color: #f0f0f4;
   color: #333;
-}
-.btn-playlist:hover {
-  background: #268852;
-  color: white;
-}
-
-.btn-favorito {
-  background: #f0f0f4;
-  color: #333;
-}
-.btn-favorito.activo {
-  background: #881226;
-  color: white;
-}
-.btn-favorito:hover {
-  background: #a3152d;
-  color: white;
+  font-size: 16px;
 }
 
 .btn-eliminar {
-  background: #aa1919;
-  color: white;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  font-size: 20px;
-  align-items: center;
-  text-align: center;
+  background-color: #aa1919;
+  color: white;
+  font-size: 14px;
+}
+
+.btn-playlist:hover {
+  background-color: #268852;
+  color: white;
+}
+
+.btn-favorito:hover {
+  background-color: #a3152d;
+  color: white;
+}
+
+.btn-favorito.activo {
+  background-color: #881226;
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background-color: #cc2525;
 }
 
 .calificacion-estrellas {
