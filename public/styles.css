@@ -34,7 +34,7 @@ h2 {
   font-size: 1.4rem;
   margin-top: 15px;
   font-weight: 400;
-  text-align: center;
+  text-align: left;
 }
 
 h4 {
@@ -409,6 +409,10 @@ footer {
     bottom: 30px;
     right: 30px;
   }
+
+  .footer-content small {
+    font-size: 0.7rem;
+  }
 }
 
 @media (min-width: 950px) {
@@ -546,4 +550,47 @@ footer {
   width: 24px;
   height: 24px;
   object-fit: contain;
+}
+
+@media (max-width: 400px) {
+  .header-content h1 {
+    font-size: 1.2rem;
+  }
+
+  h2,
+  h4 {
+    font-size: 1.1rem;
+    margin-top: 10px;
+  }
+
+  .tarjeta-cancion,
+  .tarjeta-cancion-horizontal {
+    padding: 8px;
+    gap: 8px;
+    min-height: auto;
+  }
+
+  .tarjeta-cancion img,
+  .tarjeta-cancion-horizontal .portada {
+    width: 55px;
+    height: 55px;
+  }
+
+  b {
+    font-size: 13px;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  small {
+    font-size: 11px;
+  }
+
+  #buscar {
+    font-size: 13px;
+    padding: 10px;
+  }
 }
