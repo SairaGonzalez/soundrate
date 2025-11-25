@@ -351,7 +351,8 @@ $(function () {
     });
   });
 
-  // Lógica de botón flotante
+  // Lógica de botón flotante para requerimiento del PI de la Nube
+  // No relacionado al PI de Front End
   $("#cloud-toggle-btn").on("click", function () {
     const $menu = $("#cloud-content");
     const $btn = $(this);
