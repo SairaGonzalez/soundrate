@@ -21,10 +21,6 @@ $(function () {
     });
   };
 
-  const masIcono = "/icons/plus.svg";
-  const borrarIcono = "/icons/xmark.svg";
-  const corazonIcono = "/icons/heart.svg";
-
   // Función reutilizable para confirmar acciones
   const confirmarAccion = (titulo, callbackAccion) => {
     Swal.fire({
