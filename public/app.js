@@ -213,7 +213,7 @@ $(function () {
             <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-`;
+      `;
       $favoritos.append(html);
     });
   };
@@ -286,7 +286,7 @@ $(function () {
     }
   });
 
-  // Eliminar de playlist + SweetAlert
+  // Eliminar de playlist
   $playlist.on("click", ".btn-eliminar-playlist", function () {
     const idDb = $(this).data("db-id");
 
@@ -324,7 +324,7 @@ $(function () {
     mostrarFavoritos();
   });
 
-  // Eliminar desde favoritos + SweetAlert
+  // Eliminar desde favoritos
   $favoritos.on("click", ".btn-eliminar-favorito", function () {
     const id = $(this).data("id");
 
