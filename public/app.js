@@ -68,12 +68,11 @@ $(function () {
          </select>`;
 
     Swal.fire({
-      title: esEdicion ? "Editar canción" : "Crear nueva canción",
+      title: esEdicion ? "Editar canción" : "Añadir canción manual",
       html: `
         ${htmlDestino}
 
-        <p style="font-size: 12px; color: #888; margin-bottom: 15px;">
-           <i class="fa-solid"></i> Nota: Solo las canciones creadas manualmente pueden editarse.
+        <p style="font-size: 12px; color: #888; margin-bottom: 15px;">Nota: Solo las canciones creadas manualmente pueden editarse.
         </p>
 
         <input id="swal-titulo" class="swal2-input" placeholder="Título de la canción" value="${
@@ -107,19 +106,11 @@ $(function () {
         const form = result.value;
         const imagenFinal =
           form.img || "https://cdn-icons-png.flaticon.com/512/461/461238.png";
-
-        // CORRECCIÓN CRÍTICA:
-        // Buscamos datos.id primero (que es lo que enviamos desde Favoritos)
-        // Si no, datos.track_id (si venimos de otro lado)
-        // Si no, generamos uno nuevo.
         const trackIdFinal =
           datos.id ||
           datos.track_id ||
           "manual_" + Math.floor(Math.random() * 100000);
-
-        // CASO 1: MIGRACIÓN (Cambió el destino al editar)
         if (esEdicion && form.destino !== origenActual) {
-          // A) Mover de FAVORITOS -> PLAYLIST
           if (origenActual === "favoritos" && form.destino === "playlist") {
             $.post("/api/playlist", {
               track_id: trackIdFinal,
@@ -128,9 +119,7 @@ $(function () {
               artwork_url: imagenFinal,
               preview_url: "",
             }).done(() => {
-              // Borrar de LocalStorage
               let favs = obtenerFavoritosStorage();
-              // Usamos String() para asegurar que la comparación funcione
               favs = favs.filter(
                 (f) => String(f.trackId || f.track_id) !== String(trackIdFinal)
               );
@@ -142,20 +131,18 @@ $(function () {
             });
           }
 
-          // B) Mover de PLAYLIST -> FAVORITOS
+          // Mover de PLAYLIST -> FAVORITOS
           else if (
             origenActual === "playlist" &&
             form.destino === "favoritos"
           ) {
-            // Borrar de BD (Usamos el ID numérico datos.id)
+            // Borrar de BD
             $.ajax({
               url: `/api/playlist/${datos.id}`,
               type: "DELETE",
               success: () => {
                 // Crear en LocalStorage
                 let favs = obtenerFavoritosStorage();
-                // Importante: al mover a favoritos, usamos el track_id original, no el ID numérico de la BD
-                // datos.track_id contiene el identificador de la canción (ej: manual_123 o 45812...)
                 const idParaGuardar = datos.track_id || trackIdFinal;
 
                 favs.push({
@@ -175,7 +162,7 @@ $(function () {
           }
         }
 
-        // CASO 2: GUARDADO NORMAL
+        // GUARDADO NORMAL
         else {
           if (form.destino === "playlist") {
             const method = esEdicion ? "PUT" : "POST";
@@ -496,19 +483,19 @@ $(function () {
   };
 
   // --- EVENTOS ---
-  // 1. Crear Manual
+  // Crear Manual
   $("#btn-crear-manual").on("click", function () {
     mostrarFormulario("crear");
   });
 
-  // 2. Editar Playlist
+  // Editar Playlist
   $playlist.on("click", ".btn-editar-playlist", function () {
     const dataString = decodeURIComponent($(this).data("json"));
     const data = JSON.parse(dataString);
     mostrarFormulario("editar", data);
   });
 
-  // 3. Editar Favoritos
+  // Editar Favoritos
   $favoritos.on("click", ".btn-editar-favorito", function () {
     const dataString = decodeURIComponent($(this).data("json"));
     const data = JSON.parse(dataString);
