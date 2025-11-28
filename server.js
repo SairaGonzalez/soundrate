@@ -120,6 +120,24 @@ app.post("/api/playlist", requerirAuth, async (req, res) => {
   }
 });
 
+// Actualizar canción de la playlist (EDITAR CON IMAGEN)
+app.put("/api/playlist/:id", requerirAuth, async (req, res) => {
+  const { id } = req.params;
+  const { track_name, artist_name, artwork_url } = req.body;
+  try {
+    const resultado = await pool.query(
+      "UPDATE playlist SET track_name = $1, artist_name = $2, artwork_url = $3 WHERE id = $4 RETURNING *",
+      [track_name, artist_name, artwork_url, id]
+    );
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ error: "Canción no encontrada" });
+    }
+    res.json(resultado.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar" });
+  }
+});
+
 // Eliminar canción de playlist
 app.delete("/api/playlist/:id", requerirAuth, async (req, res) => {
   const id = req.params.id;

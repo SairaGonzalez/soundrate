@@ -1,5 +1,5 @@
 $(function () {
-  // VARIABLES GLOBALES
+  // --- VARIABLES GLOBALES ---
   const $resultados = $("#resultados");
   const $playlist = $("#playlist");
   const $favoritos = $("#favoritos");
@@ -9,7 +9,7 @@ $(function () {
   let pagina = 1;
   const limite = 6;
 
-  // FUNCIONES AUXILIARES
+  // --- FUNCIONES AUXILIARES ---
   const mostrarAlerta = (titulo, tipo) => {
     Swal.fire({
       title: titulo,
@@ -21,7 +21,6 @@ $(function () {
     });
   };
 
-  // Función reutilizable para confirmar acciones
   const confirmarAccion = (titulo, callbackAccion) => {
     Swal.fire({
       title: titulo,
@@ -29,7 +28,7 @@ $(function () {
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
+      confirmButtonText: "Sí, continuar",
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -38,7 +37,6 @@ $(function () {
     });
   };
 
-  // Generar HTML de estrellas
   function crearEstrellas(trackId) {
     return `
       <div class="contenedor-estrellas" data-id="${trackId}">
@@ -54,7 +52,192 @@ $(function () {
     `;
   }
 
-  // LÓGICA DE BÚSQUEDA
+  // --- FUNCIÓN MOSTRAR FORMULARIO  ---
+  const mostrarFormulario = (modo, datos = {}) => {
+    const esEdicion = modo === "editar";
+    const origenActual = datos.origen || "playlist";
+
+    const htmlDestino = `
+         <select id="swal-destino" class="swal2-input" style="background:#2a2a2a; color:white;">
+           <option value="playlist" ${
+             origenActual === "playlist" ? "selected" : ""
+           }>Guardar en Playlist Global</option>
+           <option value="favoritos" ${
+             origenActual === "favoritos" ? "selected" : ""
+           }>Guardar en Mis Favoritos</option>
+         </select>`;
+
+    Swal.fire({
+      title: esEdicion ? "Editar canción" : "Crear nueva canción",
+      html: `
+        ${htmlDestino}
+
+        <p style="font-size: 12px; color: #888; margin-bottom: 15px;">
+           <i class="fa-solid"></i> Nota: Solo las canciones creadas manualmente pueden editarse.
+        </p>
+
+        <input id="swal-titulo" class="swal2-input" placeholder="Título de la canción" value="${
+          datos.track_name || ""
+        }">
+        <input id="swal-artista" class="swal2-input" placeholder="Nombre del artista" value="${
+          datos.artist_name || ""
+        }">
+        <input id="swal-img" class="swal2-input" placeholder="URL de Imagen (Opcional)" value="${
+          datos.artwork_url || ""
+        }">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar",
+      preConfirm: () => {
+        const titulo = document.getElementById("swal-titulo").value;
+        const artista = document.getElementById("swal-artista").value;
+        const img = document.getElementById("swal-img").value;
+        const destino = document.getElementById("swal-destino").value;
+
+        if (!titulo || !artista) {
+          Swal.showValidationMessage("Por favor escribe título y artista");
+          return false;
+        }
+        return { titulo, artista, img, destino };
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const form = result.value;
+        const imagenFinal =
+          form.img || "https://cdn-icons-png.flaticon.com/512/461/461238.png";
+
+        // CORRECCIÓN CRÍTICA:
+        // Buscamos datos.id primero (que es lo que enviamos desde Favoritos)
+        // Si no, datos.track_id (si venimos de otro lado)
+        // Si no, generamos uno nuevo.
+        const trackIdFinal =
+          datos.id ||
+          datos.track_id ||
+          "manual_" + Math.floor(Math.random() * 100000);
+
+        // CASO 1: MIGRACIÓN (Cambió el destino al editar)
+        if (esEdicion && form.destino !== origenActual) {
+          // A) Mover de FAVORITOS -> PLAYLIST
+          if (origenActual === "favoritos" && form.destino === "playlist") {
+            $.post("/api/playlist", {
+              track_id: trackIdFinal,
+              track_name: form.titulo,
+              artist_name: form.artista,
+              artwork_url: imagenFinal,
+              preview_url: "",
+            }).done(() => {
+              // Borrar de LocalStorage
+              let favs = obtenerFavoritosStorage();
+              // Usamos String() para asegurar que la comparación funcione
+              favs = favs.filter(
+                (f) => String(f.trackId || f.track_id) !== String(trackIdFinal)
+              );
+              localStorage.setItem("favoritos", JSON.stringify(favs));
+
+              mostrarAlerta("Movida a Playlist Global", "success");
+              cargarPlaylistGlobal();
+              mostrarFavoritos();
+            });
+          }
+
+          // B) Mover de PLAYLIST -> FAVORITOS
+          else if (
+            origenActual === "playlist" &&
+            form.destino === "favoritos"
+          ) {
+            // Borrar de BD (Usamos el ID numérico datos.id)
+            $.ajax({
+              url: `/api/playlist/${datos.id}`,
+              type: "DELETE",
+              success: () => {
+                // Crear en LocalStorage
+                let favs = obtenerFavoritosStorage();
+                // Importante: al mover a favoritos, usamos el track_id original, no el ID numérico de la BD
+                // datos.track_id contiene el identificador de la canción (ej: manual_123 o 45812...)
+                const idParaGuardar = datos.track_id || trackIdFinal;
+
+                favs.push({
+                  trackId: idParaGuardar,
+                  trackName: form.titulo,
+                  artistName: form.artista,
+                  artworkUrl100: imagenFinal,
+                  previewUrl: "",
+                });
+                localStorage.setItem("favoritos", JSON.stringify(favs));
+
+                mostrarAlerta("Movida a Mis Favoritos", "success");
+                cargarPlaylistGlobal();
+                mostrarFavoritos();
+              },
+            });
+          }
+        }
+
+        // CASO 2: GUARDADO NORMAL
+        else {
+          if (form.destino === "playlist") {
+            const method = esEdicion ? "PUT" : "POST";
+            const url = esEdicion
+              ? `/api/playlist/${datos.id}`
+              : "/api/playlist";
+
+            $.ajax({
+              url: url,
+              type: method,
+              contentType: "application/json",
+              data: JSON.stringify({
+                track_id: trackIdFinal,
+                track_name: form.titulo,
+                artist_name: form.artista,
+                artwork_url: imagenFinal,
+                preview_url: "",
+              }),
+              success: () => {
+                mostrarAlerta(
+                  esEdicion ? "Actualizada en Playlist" : "Creada en Playlist",
+                  "success"
+                );
+                cargarPlaylistGlobal();
+              },
+            });
+          } else {
+            // Lógica LocalStorage
+            let favs = obtenerFavoritosStorage();
+
+            if (esEdicion) {
+              const index = favs.findIndex(
+                (f) => String(f.trackId || f.track_id) === String(trackIdFinal)
+              );
+              if (index !== -1) {
+                favs[index].trackName = form.titulo;
+                favs[index].artistName = form.artista;
+                favs[index].artworkUrl100 = imagenFinal;
+              }
+            } else {
+              favs.push({
+                trackId: trackIdFinal,
+                trackName: form.titulo,
+                artistName: form.artista,
+                artworkUrl100: imagenFinal,
+                previewUrl: "",
+              });
+            }
+
+            localStorage.setItem("favoritos", JSON.stringify(favs));
+            mostrarAlerta(
+              esEdicion ? "Actualizada en Favoritos" : "Creada en Favoritos",
+              "success"
+            );
+            mostrarFavoritos();
+          }
+        }
+      }
+    });
+  };
+
+  // --- LÓGICA DE BÚSQUEDA ---
   const buscarMusica = (texto) => {
     $resultados.html(
       '<div class="loading-message"><div class="spinner"></div><p>Buscando...</p></div>'
@@ -99,7 +282,6 @@ $(function () {
       let claseFavorito = "";
       const misFavoritos = obtenerFavoritosStorage();
 
-      // Verificar favoritos
       if (misFavoritos.some((fav) => fav.trackId == id)) {
         claseFavorito = "activo";
       }
@@ -122,10 +304,8 @@ $(function () {
       idsCalificar.push(id);
     });
 
-    // Efecto visual de carga
     $resultados.hide().html(htmlAcumulado).fadeIn(400);
 
-    // Iterar IDs
     $.each(idsCalificar, function (i, id) {
       cargarCalificacion(id);
     });
@@ -153,7 +333,7 @@ $(function () {
     }
   };
 
-  // LÓGICA DE PLAYLIST
+  // --- LÓGICA DE PLAYLIST ---
   const cargarPlaylistGlobal = () => {
     $.get("/api/playlist", (datos) => {
       $playlist.empty();
@@ -164,6 +344,37 @@ $(function () {
 
       $.each(datos, function (i, item) {
         const imagenHD = item.artwork_url.replace("100x100bb", "600x600bb");
+
+        // Logica boton editar
+        const esManual = String(item.track_id).startsWith("manual_");
+        let botonEditarHTML = "";
+
+        if (esManual) {
+          const dataParaEditar = {
+            id: item.id,
+            track_id: item.track_id,
+            track_name: item.track_name,
+            artist_name: item.artist_name,
+            artwork_url: item.artwork_url,
+            origen: "playlist",
+          };
+          const dataJson = encodeURIComponent(JSON.stringify(dataParaEditar));
+
+          botonEditarHTML = `
+            <button class="btn-editar-playlist btn-playlist" data-json="${dataJson}" title="Editar" style="width:25px; height:25px; font-size:12px;">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          `;
+        }
+
+        // Logica audio
+        let audioHTML = "";
+        if (item.preview_url && item.preview_url !== "") {
+          audioHTML = `<audio controls src="${item.preview_url}"></audio>`;
+        } else {
+          audioHTML = `<span class="sin-preview">Sin previsualización</span>`;
+        }
+
         const html = `
         <div class="tarjeta-cancion-horizontal">
             <img src="${imagenHD}" class="portada">
@@ -171,12 +382,18 @@ $(function () {
               <div><b>${item.track_name}</b><small>${
           item.artist_name
         }</small></div>
-              <audio controls src="${item.preview_url}"></audio>
+              ${audioHTML}
               ${crearEstrellas(item.track_id)}
             </div>
-            <button class="btn-eliminar-playlist btn-eliminar" data-db-id="${
-              item.id
-            }"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div style="display:flex; flex-direction:column; gap:5px;">
+              ${botonEditarHTML}
+              <button class="btn-eliminar-playlist btn-eliminar" data-db-id="${
+                item.id
+              }" title="Eliminar">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
           </div>
         `;
         $playlist.append(html);
@@ -185,7 +402,7 @@ $(function () {
     });
   };
 
-  // LÓGICA DE FAVORITOS
+  // --- LÓGICA DE FAVORITOS ---
   const obtenerFavoritosStorage = () => {
     const guardados = localStorage.getItem("favoritos");
     return guardados ? JSON.parse(guardados) : [];
@@ -201,24 +418,65 @@ $(function () {
     }
 
     $.each(lista, function (i, item) {
-      const imagenHD = item.artworkUrl100.replace("100x100bb", "600x600bb");
+      const trackName = item.trackName || item.track_name;
+      const artistName = item.artistName || item.artist_name;
+      const trackId = item.trackId || item.track_id;
+      const previewUrl = item.previewUrl;
+
+      const urlImg =
+        item.artworkUrl100 ||
+        item.artworkUrl ||
+        "https://cdn-icons-png.flaticon.com/512/461/461238.png";
+      const imagenHD = urlImg.replace("100x100bb", "600x600bb");
+
+      let audioHTML = "";
+      if (previewUrl && previewUrl !== "") {
+        audioHTML = `<audio controls src="${previewUrl}"></audio>`;
+      } else {
+        audioHTML = `<span class="sin-preview">Sin previsualización</span>`;
+      }
+
+      const esManual = String(trackId).startsWith("manual_");
+      let botonEditarHTML = "";
+
+      if (esManual) {
+        const dataParaEditar = {
+          id: trackId,
+          track_name: trackName,
+          artist_name: artistName,
+          artwork_url: urlImg,
+          origen: "favoritos",
+        };
+        const dataJson = encodeURIComponent(JSON.stringify(dataParaEditar));
+
+        botonEditarHTML = `
+          <button class="btn-editar-favorito btn-playlist" data-json="${dataJson}" title="Editar" style="width:25px; height:25px; font-size:12px;">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+        `;
+      }
+
       const html = `
       <div class="tarjeta-cancion-horizontal">
         <img src="${imagenHD}" class="portada">
         <div class="info-cancion">
-          <div><b>${item.trackName}</b><small>${item.artistName}</small></div>
-        <audio controls src="${item.previewUrl}"></audio>
+          <div><b>${trackName}</b><small>${artistName}</small></div>
+          ${audioHTML}
         </div>
-        <button class="btn-eliminar-favorito btn-eliminar" data-id="${item.trackId}">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
+        
+        <div style="display:flex; flex-direction:column; gap:5px;">
+            ${botonEditarHTML}
+            <button class="btn-eliminar-favorito btn-eliminar" data-id="${trackId}">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
       </div>
       `;
       $favoritos.append(html);
     });
   };
 
-  // LÓGICA DE CALIFICACIONES
+  // --- LÓGICA DE CALIFICACIONES ---
   const cargarCalificacion = (trackId) => {
     $.get(`/api/rating/${trackId}`, (res) => {
       const $cajas = $(`.contenedor-estrellas[data-id="${trackId}"]`);
@@ -237,14 +495,32 @@ $(function () {
     });
   };
 
-  // EVENTOS
+  // --- EVENTOS ---
+  // 1. Crear Manual
+  $("#btn-crear-manual").on("click", function () {
+    mostrarFormulario("crear");
+  });
+
+  // 2. Editar Playlist
+  $playlist.on("click", ".btn-editar-playlist", function () {
+    const dataString = decodeURIComponent($(this).data("json"));
+    const data = JSON.parse(dataString);
+    mostrarFormulario("editar", data);
+  });
+
+  // 3. Editar Favoritos
+  $favoritos.on("click", ".btn-editar-favorito", function () {
+    const dataString = decodeURIComponent($(this).data("json"));
+    const data = JSON.parse(dataString);
+    mostrarFormulario("editar", data);
+  });
+
   // Buscador
   let tiempoEspera;
   $("#buscar").on("keyup", function () {
     const texto = $(this).val();
     clearTimeout(tiempoEspera);
 
-    // Limpiar todo si está vacío
     if (texto.length < 2) {
       $resultados.empty();
       $paginacion.empty();
@@ -263,7 +539,7 @@ $(function () {
     mostrarPagina();
   });
 
-  // Agregar a playlist
+  // Agregar a playlist (Desde resultados)
   $resultados.on("click", ".btn-playlist", function () {
     const id = $(this).data("id");
     const cancion = listaResultadosActual.find((c) => c.trackId == id);
@@ -289,7 +565,6 @@ $(function () {
   // Eliminar de playlist
   $playlist.on("click", ".btn-eliminar-playlist", function () {
     const idDb = $(this).data("db-id");
-
     confirmarAccion("¿Eliminar de Playlist Global?", function () {
       $.ajax({
         url: `/api/playlist/${idDb}`,
@@ -302,7 +577,7 @@ $(function () {
     });
   });
 
-  // Agregar o quitar favoritos
+  // Toggle Favoritos (Desde resultados)
   $resultados.on("click", ".btn-favorito", function () {
     const id = $(this).data("id");
     const cancion = listaResultadosActual.find((c) => c.trackId == id);
@@ -327,7 +602,6 @@ $(function () {
   // Eliminar desde favoritos
   $favoritos.on("click", ".btn-eliminar-favorito", function () {
     const id = $(this).data("id");
-
     confirmarAccion("¿Eliminar de tus favoritos?", function () {
       let favoritos = obtenerFavoritosStorage();
       favoritos = favoritos.filter((f) => f.trackId != id);
@@ -338,7 +612,7 @@ $(function () {
     });
   });
 
-  // Calificar con estrellas
+  // Calificar
   $(document).on("click", ".estrella", function () {
     const valor = $(this).data("val");
     const trackId = $(this).closest(".contenedor-estrellas").data("id");
@@ -351,13 +625,11 @@ $(function () {
     });
   });
 
-  // Lógica de botón flotante para requerimiento del PI de la Nube
-  // No relacionado al PI de Front End
+  // Botón flotante nube
   $("#cloud-toggle-btn").on("click", function () {
     const $menu = $("#cloud-content");
     const $btn = $(this);
 
-    // Toggle de clases y texto
     if ($menu.hasClass("active")) {
       $menu.removeClass("active");
       $btn.html("<span>Enlaces a la nube</span>");

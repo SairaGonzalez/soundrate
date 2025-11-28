@@ -1,3 +1,4 @@
+/* RESET Y BASE */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -30,6 +31,7 @@ body {
   flex: 1;
 }
 
+/* TIPOGRAFÍA */
 h2 {
   font-size: 1.4rem;
   margin-top: 15px;
@@ -47,12 +49,42 @@ h4:first-child {
   margin-top: 0;
 }
 
+b {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+small {
+  color: #d1d1d1;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.sin-preview {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+  display: block;
+  padding: 4px 0;
+}
+
+/* BUSCADOR Y BOTONES SUPERIORES */
 .input-group {
+  display: flex;
+  gap: 10px;
   margin-bottom: 24px;
+  align-items: center;
 }
 
 #buscar {
-  width: 100%;
+  flex-grow: 1;
   padding: 14px 18px;
   background: #ffffff14;
   border: 1px solid #ffffff1f;
@@ -62,18 +94,51 @@ h4:first-child {
   transition: all 0.15s ease;
   max-width: 100%;
 }
+
 #buscar:focus {
   outline: none;
   border-color: #4a90e2;
   background: #ffffff1f;
 }
 
+#btn-crear-manual {
+  background-color: #0a101d;
+  border: 1px solid #4a90e2;
+  color: #4a90e2;
+  width: auto;
+  padding: 0 20px;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#btn-crear-manual:hover {
+  background-color: #4a90e2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+}
+
+#btn-crear-manual:active {
+  transform: scale(0.98);
+}
+
+/* LAYOUT */
 .row {
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: 100%;
 }
+
 .col-md-7,
 .col-md-5 {
   width: 100%;
@@ -85,6 +150,7 @@ h4:first-child {
   gap: 12px;
 }
 
+/* TARJETAS DE CANCIONES */
 .tarjeta-cancion,
 .tarjeta-cancion-horizontal {
   display: flex;
@@ -124,29 +190,13 @@ h4:first-child {
   min-width: 0;
 }
 
-b {
-  font-weight: 500;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-small {
-  color: #d1d1d1;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
 audio {
   width: 100%;
   height: 28px;
   margin-top: 4px;
 }
 
-/* --- CONTENEDOR DE BOTONES --- */
+/* BOTONES DE ACCIÓN */
 .botones {
   display: flex;
   flex-direction: column;
@@ -194,28 +244,34 @@ button:hover {
   background-color: #268852;
   color: white;
 }
-
 .btn-favorito:hover {
   background-color: #a3152d;
   color: white;
 }
-
 .btn-favorito.activo {
   background-color: #881226;
   color: white;
 }
-
 .btn-eliminar:hover {
   background-color: #cc2525;
 }
 
+.btn-editar-playlist {
+  background-color: #f0f0f4;
+  color: #333;
+}
+.btn-editar-playlist:hover {
+  background-color: #4a90e2;
+  color: white;
+}
+
+/* ESTRELLAS Y PROMEDIO */
 .calificacion-estrellas {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 6px;
 }
-
 .estrellas-box {
   display: flex;
   gap: 2px;
@@ -234,11 +290,9 @@ button:hover {
   transition: all 0.2s ease;
   line-height: 1;
 }
-
 .estrella:hover {
   transform: scale(1.2);
 }
-
 .estrella.activo {
   color: #ffc107;
 }
@@ -248,7 +302,6 @@ button:hover {
   color: #aaa;
   margin-top: 2px;
 }
-
 .texto-promedio {
   display: flex;
   font-size: 13px;
@@ -258,6 +311,7 @@ button:hover {
   flex-direction: row;
 }
 
+/* PAGINACIÓN */
 #paginacion {
   display: flex;
   gap: 8px;
@@ -275,6 +329,7 @@ button:hover {
   border: 1px solid #3d6ca1;
 }
 
+/* MENSAJES DE ESTADO */
 .loading-message,
 .error-message,
 .empty-message {
@@ -298,6 +353,7 @@ button:hover {
   }
 }
 
+/* HEADER Y FOOTER */
 header {
   background: #0a101d;
   padding: 15px;
@@ -309,7 +365,6 @@ header {
   z-index: 10;
   width: 100%;
   max-width: 100vw;
-  box-sizing: border-box;
 }
 .header-content {
   display: flex;
@@ -340,7 +395,6 @@ footer {
   z-index: 10;
   width: 100%;
   max-width: 100vw;
-  box-sizing: border-box;
 }
 .footer-content p {
   color: #ccc;
@@ -351,84 +405,77 @@ footer {
   color: #888;
 }
 
-@media (min-width: 600px) {
-  .row {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-
-  .col-md-7 {
-    width: 60%;
-  }
-  .col-md-5 {
-    width: 38%;
-  }
-
-  .col-md-7 .lista-canciones {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .col-md-7 .tarjeta-cancion {
-    width: calc(50% - 8px);
-    flex-direction: column;
-    align-items: stretch;
-    min-height: 380px;
-  }
-
-  .col-md-7 .tarjeta-cancion img {
-    width: 100%;
-    max-width: 200px;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    align-self: center;
-    margin-bottom: 8px;
-  }
-
-  .col-md-7 .tarjeta-cancion .botones {
-    flex-direction: row;
-    margin-top: auto;
-    padding-top: 10px;
-  }
-
-  .header-content h1 {
-    font-size: 2.2rem;
-  }
-
-  .icono {
-    width: 80px;
-  }
-
-  h2 {
-    font-size: 1.7rem;
-  }
-
-  #floating-cloud {
-    bottom: 30px;
-    right: 30px;
-  }
-
-  .footer-content small {
-    font-size: 0.7rem;
-  }
+/* PERSONALIZACIÓN SWEETALERT2 (Modo Oscuro) */
+div:where(.swal2-container) div:where(.swal2-popup) {
+  background: #1f1f1f !important;
+  border: 1px solid #333;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  width: 380px !important;
+  padding: 1.5em !important;
 }
 
-@media (min-width: 950px) {
-  .col-md-7 {
-    width: 65%;
-  }
-  .col-md-5 {
-    width: 32%;
-  }
-
-  .col-md-7 .tarjeta-cancion {
-    width: calc(30% - 11px);
-  }
+div:where(.swal2-container) h2:where(.swal2-title) {
+  color: #f0f0f0 !important;
+  font-family: "Lexend", sans-serif !important;
+  font-weight: 400;
+  font-size: 1rem !important;
+  margin-bottom: 0.5em !important;
 }
 
-/* Estilos para recursos de la nube */
+div:where(.swal2-container) .swal2-html-container {
+  color: #ccc !important;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+  margin: 0.5em 1em !important;
+}
+
+.swal2-input,
+.swal2-select {
+  background: #2a2a2a !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  font-size: 0.9rem !important;
+  height: 2.4em !important;
+  margin: 8px auto !important;
+  width: 90% !important;
+  box-shadow: none !important;
+}
+
+.swal2-input:focus,
+.swal2-select:focus {
+  border-color: #4a90e2 !important;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) !important;
+}
+
+div:where(.swal2-container) .swal2-actions {
+  margin-top: 1.2em !important;
+  gap: 8px;
+}
+
+div:where(.swal2-container) button:where(.swal2-styled) {
+  font-size: 0.85rem !important;
+  padding: 8px 20px !important;
+  font-weight: 500 !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-confirm) {
+  background-color: #4a90e2 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+div:where(.swal2-container) button:where(.swal2-cancel) {
+  background-color: #333 !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+}
+
+.swal2-html-container p {
+  font-size: 0.8rem !important;
+}
+
+/* RECURSOS NUBE  */
 #floating-cloud {
   position: fixed;
   bottom: 85px;
@@ -456,7 +503,7 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s;
   white-space: nowrap;
   max-width: 100%;
 }
@@ -480,7 +527,7 @@ footer {
   display: none;
   opacity: 0;
   transform: translateY(20px);
-  transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  transition: all 0.3s;
   width: 220px;
   text-align: center;
 }
@@ -526,7 +573,6 @@ footer {
   font-weight: 300;
   background-color: rgba(255, 255, 255, 0.05);
 }
-
 .btn-cloud-link:hover {
   filter: brightness(1.15);
   transform: translateX(3px);
@@ -535,7 +581,6 @@ footer {
   margin-bottom: 0;
 }
 
-/* Colores Específicos */
 .bg-drive {
   background-color: #fc3d24;
 }
@@ -545,37 +590,33 @@ footer {
 .bg-render {
   background-color: #26a19b;
 }
-
 .icon-cloud {
   width: 24px;
   height: 24px;
   object-fit: contain;
 }
 
+/* MEDIA QUERIES */
 @media (max-width: 400px) {
   .header-content h1 {
     font-size: 1.2rem;
   }
-
   h2,
   h4 {
     font-size: 1.1rem;
     margin-top: 10px;
   }
-
   .tarjeta-cancion,
   .tarjeta-cancion-horizontal {
     padding: 8px;
     gap: 8px;
     min-height: auto;
   }
-
   .tarjeta-cancion img,
   .tarjeta-cancion-horizontal .portada {
     width: 55px;
     height: 55px;
   }
-
   b {
     font-size: 13px;
     white-space: normal;
@@ -584,13 +625,88 @@ footer {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-
   small {
     font-size: 11px;
   }
-
   #buscar {
     font-size: 13px;
     padding: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .input-group {
+    flex-wrap: wrap;
+  }
+  #btn-crear-manual {
+    width: 100%;
+    height: 45px;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 600px) {
+  .row {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .col-md-7 {
+    width: 60%;
+  }
+  .col-md-5 {
+    width: 38%;
+  }
+  .col-md-7 .lista-canciones {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .col-md-7 .tarjeta-cancion {
+    width: calc(50% - 8px);
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 380px;
+  }
+  .col-md-7 .tarjeta-cancion img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    align-self: center;
+    margin-bottom: 8px;
+  }
+  .col-md-7 .tarjeta-cancion .botones {
+    flex-direction: row;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  .header-content h1 {
+    font-size: 2.2rem;
+  }
+  .icono {
+    width: 80px;
+  }
+  h2 {
+    font-size: 1.7rem;
+  }
+  #floating-cloud {
+    bottom: 30px;
+    right: 30px;
+  }
+  .footer-content small {
+    font-size: 0.7rem;
+  }
+}
+
+@media (min-width: 950px) {
+  .col-md-7 {
+    width: 65%;
+  }
+  .col-md-5 {
+    width: 32%;
+  }
+  .col-md-7 .tarjeta-cancion {
+    width: calc(30% - 11px);
   }
 }
