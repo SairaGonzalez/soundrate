@@ -482,7 +482,7 @@ div:where(.swal2-container) button:where(.swal2-cancel) {
   right: 15px;
   z-index: 9999;
   font-family: "Lexend", sans-serif;
-  display: flex;
+  display: none;
   flex-direction: column-reverse;
   align-items: flex-end;
   gap: 15px;
