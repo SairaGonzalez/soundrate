@@ -569,7 +569,9 @@ div:where(.swal2-container) button:where(.swal2-cancel) {
   color: white;
   text-decoration: none;
   font-size: 0.9rem;
-  transition: filter 0.2s, transform 0.2s;
+  transition:
+    filter 0.2s,
+    transform 0.2s;
   font-weight: 300;
   background-color: rgba(255, 255, 255, 0.05);
 }
