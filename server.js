@@ -31,7 +31,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false, maxAge: 1000 * 60 * 60 },
-  })
+  }),
 );
 
 app.use(express.static("public"));
@@ -51,33 +51,61 @@ const requerirAuth = (req, res, next) => {
   if (req.session && req.session.token) {
     next();
   } else {
-    res.status(403).json({ error: "Acceso denegado. No hay sesion." });
+    res.status(403).json({ error: "Acceso denegado. No hay sesión." });
   }
 };
 
 // Inicializar tablas Playlist y Ratings si no existen
 const crearTablas = async () => {
   try {
-    // Tabla Playlist
+    // Crear tabla playlist (si no existe)
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS playlist (
+      CREATE TABLE IF NOT EXISTS playlist (
         id SERIAL PRIMARY KEY,
         track_id VARCHAR(50),
         track_name TEXT,
         artist_name TEXT,
         artwork_url TEXT,
-        preview_url TEXT
+        preview_url TEXT,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-      `);
-    // Tabla Ratings
+    `);
+
+    // Eliminar duplicados existentes
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS ratings (
+      DELETE FROM playlist a
+      USING playlist b
+      WHERE a.track_id = b.track_id
+      AND a.id < b.id;
+    `);
+
+    // Agregar UNIQUE si no existe
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1
+          FROM pg_constraint
+          WHERE conname = 'playlist_track_id_unique'
+        ) THEN
+          ALTER TABLE playlist
+          ADD CONSTRAINT playlist_track_id_unique UNIQUE (track_id);
+        END IF;
+      END$$;
+    `);
+
+    // Tabla ratings (igual que antes)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ratings (
         track_id VARCHAR(50) PRIMARY KEY,
         rating_sum INTEGER DEFAULT 0,
-        rating_count INTEGER DEFAULT 0
+        rating_count INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-      `);
-  } catch (err) {}
+    `);
+  } catch (err) {
+    console.error("Error inicializando BD:", err);
+  }
 };
 crearTablas();
 
@@ -86,7 +114,7 @@ crearTablas();
 app.get("/api/playlist", async (req, res) => {
   try {
     const resultado = await pool.query(
-      "SELECT * FROM playlist ORDER BY id DESC"
+      "SELECT * FROM playlist ORDER BY id DESC",
     );
     res.json(resultado.rows);
   } catch (error) {
@@ -102,7 +130,7 @@ app.post("/api/playlist", requerirAuth, async (req, res) => {
     // Verificar si existe
     const existe = await pool.query(
       "SELECT * FROM playlist WHERE track_id = $1",
-      [track_id]
+      [track_id],
     );
     if (existe.rows.length > 0) {
       return res
@@ -112,10 +140,13 @@ app.post("/api/playlist", requerirAuth, async (req, res) => {
 
     const resultado = await pool.query(
       "INSERT INTO playlist (track_id, track_name, artist_name, artwork_url, preview_url) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [track_id, track_name, artist_name, artwork_url, preview_url]
+      [track_id, track_name, artist_name, artwork_url, preview_url],
     );
     res.json(resultado.rows[0]);
   } catch (err) {
+    if (err.code === "23505") {
+      return res.status(400).json({ error: "La canción ya existe" });
+    }
     res.status(500).json({ error: "Error al agregar" });
   }
 });
@@ -127,10 +158,10 @@ app.put("/api/playlist/:id", requerirAuth, async (req, res) => {
   try {
     const resultado = await pool.query(
       "UPDATE playlist SET track_name = $1, artist_name = $2, artwork_url = $3 WHERE id = $4 RETURNING *",
-      [track_name, artist_name, artwork_url, id]
+      [track_name, artist_name, artwork_url, id],
     );
     if (resultado.rows.length === 0) {
-      return res.status(404).json({ error: "Canción no encontrada" });
+      return res.status(404).json({ error: "canción no encontrada" });
     }
     res.json(resultado.rows[0]);
   } catch (error) {
@@ -173,7 +204,7 @@ app.get("/api/rating/:track_id", async (req, res) => {
   try {
     const resultado = await pool.query(
       "SELECT * FROM ratings WHERE track_id = $1",
-      [track_id]
+      [track_id],
     );
     if (resultado.rows.length > 0) {
       res.json(resultado.rows[0]);
