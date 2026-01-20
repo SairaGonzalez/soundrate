@@ -123,7 +123,7 @@ app.get("/api/playlist", async (req, res) => {
 });
 
 // Agregar canción a la playlist
-app.post("/api/playlist", requerirAuth, async (req, res) => {
+app.post("/api/playlist", async (req, res) => {
   const { track_id, track_name, artist_name, artwork_url, preview_url } =
     req.body;
   try {
@@ -152,7 +152,7 @@ app.post("/api/playlist", requerirAuth, async (req, res) => {
 });
 
 // Actualizar canción de la playlist (EDITAR CON IMAGEN)
-app.put("/api/playlist/:id", requerirAuth, async (req, res) => {
+app.put("/api/playlist/:id", async (req, res) => {
   const { id } = req.params;
   const { track_name, artist_name, artwork_url } = req.body;
   try {
@@ -170,7 +170,7 @@ app.put("/api/playlist/:id", requerirAuth, async (req, res) => {
 });
 
 // Eliminar canción de playlist
-app.delete("/api/playlist/:id", requerirAuth, async (req, res) => {
+app.delete("/api/playlist/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await pool.query("DELETE FROM playlist WHERE id = $1", [id]);

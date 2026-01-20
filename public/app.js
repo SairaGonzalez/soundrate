@@ -121,7 +121,7 @@ $(function () {
             }).done(() => {
               let favs = obtenerFavoritosStorage();
               favs = favs.filter(
-                (f) => String(f.trackId || f.track_id) !== String(trackIdFinal)
+                (f) => String(f.trackId || f.track_id) !== String(trackIdFinal),
               );
               localStorage.setItem("favoritos", JSON.stringify(favs));
 
@@ -184,9 +184,18 @@ $(function () {
               success: () => {
                 mostrarAlerta(
                   esEdicion ? "Actualizada en Playlist" : "Creada en Playlist",
-                  "success"
+                  "success",
                 );
                 cargarPlaylistGlobal();
+              },
+              error: (xhr) => {
+                if (xhr.status === 400) {
+                  mostrarAlerta("La canción ya existe", "info");
+                } else if (xhr.status === 403) {
+                  mostrarAlerta("Sesión no válida", "error");
+                } else {
+                  mostrarAlerta("Error al guardar", "error");
+                }
               },
             });
           } else {
@@ -195,7 +204,7 @@ $(function () {
 
             if (esEdicion) {
               const index = favs.findIndex(
-                (f) => String(f.trackId || f.track_id) === String(trackIdFinal)
+                (f) => String(f.trackId || f.track_id) === String(trackIdFinal),
               );
               if (index !== -1) {
                 favs[index].trackName = form.titulo;
@@ -215,7 +224,7 @@ $(function () {
             localStorage.setItem("favoritos", JSON.stringify(favs));
             mostrarAlerta(
               esEdicion ? "Actualizada en Favoritos" : "Creada en Favoritos",
-              "success"
+              "success",
             );
             mostrarFavoritos();
           }
@@ -227,10 +236,10 @@ $(function () {
   // --- LÓGICA DE BÚSQUEDA ---
   const buscarMusica = (texto) => {
     $resultados.html(
-      '<div class="loading-message"><div class="spinner"></div><p>Buscando...</p></div>'
+      '<div class="loading-message"><div class="spinner"></div><p>Buscando...</p></div>',
     );
     const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
-      texto
+      texto,
     )}&entity=song&limit=60&callback=?`;
 
     $.getJSON(url)
@@ -247,7 +256,7 @@ $(function () {
   const mostrarPagina = () => {
     if (listaResultadosActual.length === 0) {
       $resultados.html(
-        "<div class='empty-message'>No se encontraron canciones.</div>"
+        "<div class='empty-message'>No se encontraron canciones.</div>",
       );
       return;
     }
@@ -301,7 +310,7 @@ $(function () {
     if ($resultados.offset()) {
       $("html, body").animate(
         { scrollTop: $resultados.offset().top - 20 },
-        300
+        300,
       );
     }
   };
@@ -314,7 +323,7 @@ $(function () {
       for (let i = 1; i <= totalPaginas; i++) {
         const clase = i === pagina ? "btn-primary" : "";
         $paginacion.append(
-          `<button class="${clase}" data-pag="${i}">${i}</button>`
+          `<button class="${clase}" data-pag="${i}">${i}</button>`,
         );
       }
     }
@@ -367,8 +376,8 @@ $(function () {
             <img src="${imagenHD}" class="portada">
             <div class="info-cancion">
               <div><b>${item.track_name}</b><small>${
-          item.artist_name
-        }</small></div>
+                item.artist_name
+              }</small></div>
               ${audioHTML}
               ${crearEstrellas(item.track_id)}
             </div>
@@ -543,8 +552,14 @@ $(function () {
           mostrarAlerta("Agregada a la playlist", "success");
           cargarPlaylistGlobal();
         })
-        .fail(() => {
-          mostrarAlerta("Error o ya existe en la playlist", "info");
+        .fail((xhr) => {
+          if (xhr.status === 403) {
+            mostrarAlerta("Sesión no válida", "error");
+          } else if (xhr.status === 400) {
+            mostrarAlerta("La canción ya existe", "info");
+          } else {
+            mostrarAlerta("Error al agregar", "error");
+          }
         });
     }
   });
