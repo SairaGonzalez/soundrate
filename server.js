@@ -13,11 +13,8 @@ const port = process.env.PORT || 3000;
 
 // Conexión a la base de datos Postgre en Render
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL + "?sslmode=require",
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-  keepAlive: true,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
 });
 
 app.use(cors());
