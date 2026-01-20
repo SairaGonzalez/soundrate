@@ -107,7 +107,9 @@ const crearTablas = async () => {
     console.error("Error inicializando BD:", err);
   }
 };
-crearTablas();
+if (process.env.NODE_ENV !== "production") {
+  crearTablas();
+}
 
 // ENDPOINTS API
 // Obtener playlist guardada
