@@ -144,6 +144,8 @@ app.post("/api/playlist", async (req, res) => {
     );
     res.json(resultado.rows[0]);
   } catch (err) {
+    console.error("Error POST /api/playlist:", err);
+
     if (err.code === "23505") {
       return res.status(400).json({ error: "La canción ya existe" });
     }
